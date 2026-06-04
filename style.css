@@ -128,13 +128,15 @@ img { max-width: 100%; display: block; }
 
 /* ===== HERO ===== */
 .hero {
-  background: linear-gradient(180deg,
-    #7ec8e3 0%,
-    #45b5d5 25%,
-    #1a94c4 55%,
-    #0d7aad 78%,
-    #006994 100%
-  );
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(0, 15, 60, 0.70) 0%,
+      rgba(0, 28, 80, 0.50) 35%,
+      rgba(0, 22, 65, 0.58) 68%,
+      rgba(0,  8, 38, 0.76) 100%
+    ),
+    url('images/hero-mayotte.jpg') center / cover no-repeat;
   color: var(--white);
   position: relative;
   overflow: hidden;
@@ -196,7 +198,17 @@ img { max-width: 100%; display: block; }
   min-height: 88vh;
 }
 
-.hero-content { flex: 1; max-width: 520px; }
+/* Photo hero : scène SVG et déco ciel masquées */
+.hero-deco  { display: none; }
+.hero-scene { display: none; }
+
+/* Contenu centré (pleine largeur sans SVG) */
+.hero-content {
+  flex: unset;
+  width: 100%;
+  max-width: 720px;
+  text-align: center;
+}
 
 .hero-badge {
   display: inline-block;
@@ -223,20 +235,28 @@ img { max-width: 100%; display: block; }
   line-height: 1.12;
   margin-bottom: 14px;
   letter-spacing: -1px;
+  text-shadow: 0 2px 28px rgba(0,0,0,0.70), 0 1px 6px rgba(0,0,0,0.50);
 }
 .accent { color: #FFD700; }
 .hero-quote {
   font-style: italic;
   font-size: 1rem;
-  color: rgba(255,255,255,0.82);
+  color: rgba(255,255,255,0.92);
   margin-bottom: 14px;
-  border-left: 3px solid #FFD700;
-  padding-left: 14px;
+  border-left: none;
+  padding-left: 0;
   line-height: 1.55;
+  text-shadow: 0 1px 12px rgba(0,0,0,0.55);
 }
-.hero-sub { font-size: 1.05rem; opacity: 0.85; margin-bottom: 32px; line-height: 1.7; }
-.hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 28px; }
-.hero-trust { display: flex; flex-wrap: wrap; gap: 18px; font-size: 0.86rem; opacity: 0.75; }
+.hero-sub {
+  font-size: 1.05rem;
+  opacity: 1;
+  margin-bottom: 32px;
+  line-height: 1.7;
+  text-shadow: 0 1px 10px rgba(0,0,0,0.55);
+}
+.hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 28px; justify-content: center; }
+.hero-trust   { display: flex; flex-wrap: wrap; gap: 18px; font-size: 0.86rem; opacity: 0.9; justify-content: center; text-shadow: 0 1px 8px rgba(0,0,0,0.5); }
 
 /* Scène illustrée */
 .hero-scene { flex: 1; max-width: 560px; display: flex; align-items: flex-end; }
