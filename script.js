@@ -1,5 +1,5 @@
 // ===== CONFIGURATION — REMPLACEZ CES VALEURS =====
-const PHONE = '262639XXXXXX'; // Votre numéro WhatsApp sans + ni espaces (ex: 262639123456)
+const PHONE = '262639202699'; // Taxi Mayotte Express
 
 // ===== DATE & HEURE PAR DÉFAUT =====
 document.addEventListener('DOMContentLoaded', () => {
@@ -98,6 +98,54 @@ function formatDate(str) {
   const mois    = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
   const date    = new Date(str + 'T12:00:00');
   return `${jours[date.getDay()]} ${parseInt(d)} ${mois[parseInt(m) - 1]} ${y}`;
+}
+
+// ===== FORMULAIRE DEVIS → WHATSAPP =====
+const formDevis   = document.getElementById('formDevis');
+const btnDevis    = document.getElementById('btnDevis');
+
+if (formDevis) {
+  formDevis.addEventListener('submit', e => {
+    e.preventDefault();
+
+    const nom         = formDevis['nom'].value.trim();
+    const tel         = formDevis['tel'].value.trim();
+    const depart      = formDevis['depart'].value.trim();
+    const destination = formDevis['destination'].value.trim();
+    const date        = formDevis['date'].value;
+    const passagers   = formDevis['passagers'].value;
+    const notes       = formDevis['notes'].value.trim();
+
+    if (!nom || !tel || !depart || !destination) {
+      alert('Merci de remplir les champs obligatoires : prénom, téléphone, départ et destination.');
+      return;
+    }
+
+    let msg = `💰 *Demande de devis — Taxi Mayotte Express*\n\n`;
+    msg += `👤 *Prénom :* ${nom}\n`;
+    msg += `📱 *Téléphone :* ${tel}\n`;
+    msg += `📍 *Départ :* ${depart}\n`;
+    msg += `🏁 *Destination :* ${destination}\n`;
+    if (date) msg += `📅 *Date souhaitée :* ${formatDate(date)}\n`;
+    msg += `👥 *Passagers :* ${passagers}\n`;
+    if (notes) msg += `📝 *Infos complémentaires :* ${notes}\n`;
+    msg += `\n_Demande de devis via le site web_`;
+
+    const url = `https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+
+    // Feedback visuel
+    const original = btnDevis.innerHTML;
+    btnDevis.innerHTML = `✅ Message envoyé — Vérifiez WhatsApp !`;
+    btnDevis.style.background = '#059669';
+    btnDevis.disabled = true;
+    setTimeout(() => {
+      btnDevis.innerHTML = original;
+      btnDevis.style.background = '';
+      btnDevis.disabled = false;
+      formDevis.reset();
+    }, 5000);
+  });
 }
 
 function showSuccess() {
