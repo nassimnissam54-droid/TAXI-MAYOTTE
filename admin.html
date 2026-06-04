@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Administration — Taxi Mayotte Express</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+  :root{
+    --primary:#0052cc;--primary-dark:#003d99;--primary-light:#e8f0fe;
+    --accent:#f5a623;--success:#059669;--danger:#dc2626;--warning:#d97706;
+    --text:#1a1a2e;--text-light:#6b7280;--bg:#f0f4f8;
+    --white:#fff;--border:#e5e7eb;
+    --sidebar-w:240px;--radius:12px;--radius-sm:8px;
+    --shadow:0 2px 12px rgba(0,0,0,0.08);--shadow-lg:0 8px 32px rgba(0,0,0,0.14);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Inter',system-ui,sans-serif;color:var(--text);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased;}
+  a{color:inherit;text-decoration:none;}
+
+  /* ===== LOGIN ===== */
+  #loginPage{
+    min-height:100vh;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(135deg,#003d99 0%,#0052cc 55%,#1565c0 100%);
+    padding:20px;
+  }
+  .login-card{background:var(--white);border-radius:20px;padding:2.5rem 2rem;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,0.3);text-align:center;}
+  .login-logo{font-size:3.2rem;margin-bottom:0.4rem;}
+  .login-title{font-size:1.4rem;font-weight:800;margin-bottom:0.3rem;}
+  .login-sub{font-size:0.86rem;color:var(--text-light);margin-bottom:2rem;}
+  .login-form{display:flex;flex-direction:column;gap:1rem;text-align:left;}
+  .login-form label{font-size:0.83rem;font-weight:600;}
+  .login-form input{width:100%;padding:12px 14px;border:2px solid var(--border);border-radius:var(--radius-sm);font-size:1rem;font-family:inherit;transition:border-color .2s;}
+  .login-form input:focus{outline:none;border-color:var(--primary);}
+  .login-btn{background:var(--primary);color:var(--white);padding:13px;border:none;border-radius:var(--radius-sm);font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit;transition:background .2s,transform .1s;}
+  .login-btn:hover{background:var(--primary-dark);transform:translateY(-1px);}
+  .login-error{background:#fee2e2;color:#dc2626;padding:10px 14px;border-radius:var(--radius-sm);font-size:0.84rem;font-weight:600;display:none;text-align:center;margin-bottom:0.5rem;}
+  @keyframes shake{0%,100%{transform:translateX(0);}20%,60%{transform:translateX(-8px);}40%,80%{transform:translateX(8px);}}
+  .shake{animation:shake .4s ease;}
+
+  /* ===== LAYOUT ===== */
+  #adminPanel{display:flex;min-height:100vh;}
+
+  /* SIDEBAR */
+  .sidebar{
+    width:var(--sidebar-w);background:var(--primary-dark);color:var(--white);
+    display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;
+    z-index:50;transition:transform .3s;overflow-y:auto;
+  }
+  .sidebar-logo{padding:1.4rem 1.2rem 1rem;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,0.1);}
+  .sidebar-logo-icon{font-size:2rem;}
+  .sidebar-logo-text .s1{display:block;font-size:0.93rem;font-weight:800;}
+  .sidebar-logo-text .s2{display:block;font-size:0.7rem;opacity:.7;}
+  .sidebar-nav{padding:.8rem 0;flex:1;display:flex;flex-direction:column;gap:2px;}
+  .nav-item{
+    display:flex;align-items:center;gap:10px;padding:11px 1.2rem;cursor:pointer;
+    font-size:0.88rem;font-weight:500;color:rgba(255,255,255,0.8);
+    border-left:3px solid transparent;transition:background .15s;
+  }
+  .nav-item:hover{background:rgba(255,255,255,0.1);color:var(--white);}
+  .nav-item.active{background:rgba(255,255,255,0.15);color:var(--white);border-left-color:var(--accent);}
+  .nav-icon{font-size:1.15rem;width:22px;text-align:center;}
+  .nav-badge{margin-left:auto;background:var(--accent);color:#111;font-size:0.68rem;font-weight:800;padding:2px 7px;border-radius:20px;}
+  .sidebar-footer{padding:1rem 1.2rem;border-top:1px solid rgba(255,255,255,0.1);}
+  .logout-btn{display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(255,255,255,0.1);border:none;color:rgba(255,255,255,0.85);border-radius:var(--radius-sm);cursor:pointer;font-size:0.86rem;font-family:inherit;font-weight:500;width:100%;transition:background .15s;}
+  .logout-btn:hover{background:rgba(220,38,38,0.35);color:var(--white);}
+
+  /* MAIN */
+  .main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh;}
+  .main-header{
+    background:var(--white);border-bottom:1px solid var(--border);
+    padding:14px 24px;display:flex;align-items:center;justify-content:space-between;
+    position:sticky;top:0;z-index:40;box-shadow:var(--shadow);
+  }
+  .main-header-left{display:flex;align-items:center;gap:12px;}
+  .page-title{font-size:1.15rem;font-weight:800;}
+  .page-date{font-size:0.78rem;color:var(--text-light);}
+  .admin-info{display:flex;align-items:center;gap:8px;font-size:0.86rem;font-weight:600;}
+  .admin-avatar{width:36px;height:36px;background:var(--primary);color:var(--white);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.9rem;}
+  .hamburger{display:none;background:none;border:none;cursor:pointer;padding:6px;}
+  .hamburger span{display:block;width:22px;height:2px;background:var(--text);margin:5px 0;transition:all .2s;}
+  .main-content{padding:24px;flex:1;}
+
+  /* SECTIONS */
+  .section{display:none;}
+  .section.active{display:block;}
+
+  /* STATS */
+  .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:1.1rem;margin-bottom:1.8rem;}
+  .stat-card{background:var(--white);border-radius:var(--radius);padding:1.3rem;box-shadow:var(--shadow);display:flex;align-items:center;gap:1rem;}
+  .stat-icon{width:50px;height:50px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;}
+  .si-blue{background:var(--primary-light);}
+  .si-green{background:#d1fae5;}
+  .si-orange{background:#fff7e6;}
+  .si-red{background:#fee2e2;}
+  .stat-value{font-size:1.9rem;font-weight:800;line-height:1;}
+  .stat-label{font-size:0.78rem;color:var(--text-light);margin-top:3px;}
+
+  /* CARDS */
+  .content-card{background:var(--white);border-radius:var(--radius);padding:1.4rem;box-shadow:var(--shadow);margin-bottom:1.4rem;}
+  .card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.1rem;padding-bottom:.8rem;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:.6rem;}
+  .card-title{font-size:.97rem;font-weight:700;}
+
+  /* BUTTONS */
+  .btn{display:inline-flex;align-items:center;gap:5px;padding:8px 16px;border-radius:var(--radius-sm);font-size:.84rem;font-weight:600;cursor:pointer;border:none;transition:all .15s;font-family:inherit;}
+  .btn-primary{background:var(--primary);color:var(--white);}.btn-primary:hover{background:var(--primary-dark);}
+  .btn-success{background:var(--success);color:var(--white);}.btn-success:hover{background:#047857;}
+  .btn-danger{background:var(--danger);color:var(--white);}.btn-danger:hover{background:#b91c1c;}
+  .btn-warning{background:var(--warning);color:var(--white);}.btn-warning:hover{background:#b45309;}
+  .btn-ghost{background:transparent;color:var(--text-light);border:1px solid var(--border);}.btn-ghost:hover{background:var(--bg);color:var(--text);}
+  .btn-sm{padding:5px 10px;font-size:.77rem;}
+
+  /* TABLE */
+  .table-wrap{overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;}
+  th{background:var(--bg);padding:9px 12px;text-align:left;font-size:.76rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid var(--border);}
+  td{padding:11px 12px;border-bottom:1px solid var(--border);font-size:.86rem;}
+  tr:last-child td{border-bottom:none;}
+  tr:hover td{background:#f9fafb;}
+
+  /* BADGES */
+  .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.73rem;font-weight:700;}
+  .b-actif{background:#d1fae5;color:#065f46;}
+  .b-suspendu{background:#fee2e2;color:#991b1b;}
+  .b-attente{background:#fff7e6;color:#92400e;}
+  .b-approuve{background:#d1fae5;color:#065f46;}
+  .b-refuse{background:#fee2e2;color:#991b1b;}
+  .b-admin{background:#ede9fe;color:#5b21b6;}
+  .b-paye{background:#d1fae5;color:#065f46;}
+  .b-impaye{background:#fee2e2;color:#991b1b;}
+
+  /* SEARCH */
+  .search-wrap{position:relative;max-width:260px;}
+  .search-wrap input{width:100%;padding:8px 12px 8px 34px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:.86rem;font-family:inherit;background:var(--bg);}
+  .search-wrap input:focus{outline:none;border-color:var(--primary);background:var(--white);}
+  .search-ico{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-light);font-size:.85rem;}
+
+  /* DEMANDES */
+  .demandes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:1.1rem;}
+  .demande-card{background:var(--white);border-radius:var(--radius);padding:1.2rem;box-shadow:var(--shadow);border-top:4px solid var(--warning);}
+  .demande-card.approved{border-top-color:var(--success);}
+  .demande-card.refused{border-top-color:var(--danger);}
+  .demande-name{font-weight:700;font-size:.97rem;margin-bottom:3px;}
+  .demande-meta{font-size:.82rem;color:var(--text-light);margin-bottom:.9rem;}
+  .doc-row{display:flex;align-items:center;gap:6px;font-size:.79rem;color:var(--text-light);margin-bottom:3px;}
+  .demande-actions{display:flex;gap:7px;margin-top:.9rem;}
+
+  /* PARAMS */
+  .params-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.4rem;}
+  .param-box{background:var(--white);border-radius:var(--radius);padding:1.4rem;box-shadow:var(--shadow);}
+  .param-box h3{font-size:.97rem;font-weight:700;margin-bottom:1.1rem;padding-bottom:.6rem;border-bottom:1px solid var(--border);}
+  .fg{margin-bottom:.9rem;}
+  .fg label{display:block;font-size:.82rem;font-weight:600;margin-bottom:4px;}
+  .fg input,.fg select,.fg textarea{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:.88rem;font-family:inherit;transition:border-color .2s;}
+  .fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--primary);}
+  .fg-note{font-size:.76rem;color:var(--text-light);margin-top:3px;}
+
+  /* MODAL */
+  .modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center;padding:20px;}
+  .modal-overlay.open{display:flex;}
+  .modal{background:var(--white);border-radius:var(--radius);padding:1.8rem;width:100%;max-width:460px;box-shadow:var(--shadow-lg);max-height:90vh;overflow-y:auto;}
+  .modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.3rem;}
+  .modal-header h3{font-size:1.05rem;font-weight:800;}
+  .modal-close{background:none;border:none;cursor:pointer;font-size:1.5rem;color:var(--text-light);line-height:1;padding:0;}
+  .modal-close:hover{color:var(--text);}
+  .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:1.2rem;}
+
+  /* ACTIVITY */
+  .activity-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);}
+  .activity-row:last-child{border-bottom:none;}
+
+  /* QUICK LINKS */
+  .quick-links{display:flex;flex-wrap:wrap;gap:10px;}
+
+  /* EMPTY */
+  .empty-state{text-align:center;padding:2.5rem 1rem;color:var(--text-light);}
+  .empty-state .ei{font-size:2.8rem;margin-bottom:.6rem;}
+
+  /* RESPONSIVE */
+  @media(max-width:899px){
+    .sidebar{transform:translateX(-100%);}
+    .sidebar.open{transform:translateX(0);}
+    .main{margin-left:0;}
+    .hamburger{display:block;}
+    .main-content{padding:14px;}
+    .stats-grid{grid-template-columns:1fr 1fr;}
+  }
+  @media(max-width:480px){
+    .stat-card{padding:.9rem;}
+    .stat-value{font-size:1.5rem;}
+    .content-card{padding:1rem;}
+    .params-grid{grid-template-columns:1fr;}
+    .demandes-grid{grid-template-columns:1fr;}
+  }
+  </style>
+</head>
+<body>
+
+<!-- ========== LOGIN ========== -->
+<div id="loginPage">
+  <div class="login-card" id="loginCard">
+    <div class="login-logo">🚕</div>
+    <h1 class="login-title">Taxi Mayotte Express</h1>
+    <p class="login-sub">Espace Administration — Accès restreint</p>
+    <div class="login-error" id="loginError">❌ Mot de passe incorrect</div>
+    <form class="login-form" id="loginForm" autocomplete="off">
+      <div>
+        <label for="adminPass">Mot de passe administrateur</label>
+        <input type="password" id="adminPass" placeholder="••••••••" autocomplete="current-password"/>
+      </div>
+      <button type="submit" class="login-btn">Se connecter →</button>
+    </form>
+  </div>
+</div>
+
+<!-- ========== PANNEAU ADMIN ========== -->
+<div id="adminPanel" style="display:none">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <span class="sidebar-logo-icon">🚕</span>
+      <div class="sidebar-logo-text">
+        <span class="s1">Taxi Mayotte Express</span>
+        <span class="s2">Administration</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item active" data-section="dashboard"><span class="nav-icon">📊</span>Tableau de bord</div>
+      <div class="nav-item" data-section="chauffeurs"><span class="nav-icon">🚗</span>Chauffeurs</div>
+      <div class="nav-item" data-section="demandes"><span class="nav-icon">📋</span>Demandes<span class="nav-badge" id="badge-demandes" style="display:none">0</span></div>
+      <div class="nav-item" data-section="abonnements"><span class="nav-icon">💳</span>Abonnements</div>
+      <div class="nav-item" data-section="parametres"><span class="nav-icon">⚙️</span>Paramètres</div>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="logout-btn" id="logoutBtn">🚪 Déconnexion</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <header class="main-header">
+      <div class="main-header-left">
+        <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+        <div>
+          <div class="page-title" id="pageTitle">Tableau de bord</div>
+          <div class="page-date" id="pageDate"></div>
+        </div>
+      </div>
+      <div class="admin-info">
+        <div class="admin-avatar">A</div>
+        <span>Administrateur</span>
+      </div>
+    </header>
+
+    <div class="main-content">
+
+      <!-- ===== DASHBOARD ===== -->
+      <div class="section active" id="section-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-icon si-blue">🚗</div><div><div class="stat-value" id="s-total">0</div><div class="stat-label">Total chauffeurs</div></div></div>
+          <div class="stat-card"><div class="stat-icon si-green">✅</div><div><div class="stat-value" id="s-actifs">0</div><div class="stat-label">Chauffeurs actifs</div></div></div>
+          <div class="stat-card"><div class="stat-icon si-orange">📋</div><div><div class="stat-value" id="s-demandes">0</div><div class="stat-label">Demandes en attente</div></div></div>
+          <div class="stat-card"><div class="stat-icon si-red">💳</div><div><div class="stat-value" id="s-impayes">0</div><div class="stat-label">Abonnements impayés</div></div></div>
+        </div>
+        <div class="content-card">
+          <div class="card-header"><span class="card-title">🕐 Activité récente</span></div>
+          <div id="activityList"></div>
+        </div>
+        <div class="content-card">
+          <div class="card-header"><span class="card-title">🔗 Accès rapide</span></div>
+          <div class="quick-links">
+            <button class="btn btn-primary" onclick="navigateTo('chauffeurs')">➕ Ajouter un chauffeur</button>
+            <button class="btn btn-warning" onclick="navigateTo('demandes')">📋 Voir les demandes</button>
+            <a href="index.html" target="_blank" class="btn btn-ghost">🌐 Voir le site</a>
+            <a href="https://wa.me/262639202699" target="_blank" class="btn btn-ghost">💬 WhatsApp</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== CHAUFFEURS ===== -->
+      <div class="section" id="section-chauffeurs">
+        <div class="content-card">
+          <div class="card-header">
+            <span class="card-title">🚗 Liste des chauffeurs</span>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+              <div class="search-wrap">
+                <span class="search-ico">🔍</span>
+                <input type="text" id="searchC" placeholder="Rechercher…" oninput="filterC()">
+              </div>
+              <button class="btn btn-primary" onclick="openModal('mAddC')">➕ Ajouter</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Chauffeur</th><th>Téléphone</th><th>Statut</th><th>Abonnement</th><th>Inscrit le</th><th>Actions</th></tr></thead>
+              <tbody id="tblC"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== DEMANDES ===== -->
+      <div class="section" id="section-demandes">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.1rem;flex-wrap:wrap;gap:.6rem;">
+          <h2 style="font-size:1.05rem;font-weight:800;">📋 Demandes d'inscription</h2>
+          <button class="btn btn-primary" onclick="openModal('mAddD')">➕ Nouvelle demande</button>
+        </div>
+        <div class="demandes-grid" id="demandesGrid"></div>
+        <div id="demandesEmpty" class="empty-state" style="display:none;"><div class="ei">🎉</div><p>Aucune demande en attente</p></div>
+      </div>
+
+      <!-- ===== ABONNEMENTS ===== -->
+      <div class="section" id="section-abonnements">
+        <div class="content-card">
+          <div class="card-header"><span class="card-title">💳 Gestion des abonnements</span></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Chauffeur</th><th>Plan</th><th>Paiement</th><th>Renouvellement</th><th>Actions</th></tr></thead>
+              <tbody id="tblA"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== PARAMÈTRES ===== -->
+      <div class="section" id="section-parametres">
+        <div class="params-grid">
+          <div class="param-box">
+            <h3>📱 Coordonnées du site</h3>
+            <div class="fg"><label>Numéro de téléphone</label><input type="tel" id="p-tel" value="+262 639 20 26 99"/></div>
+            <div class="fg"><label>Nom de la plateforme</label><input type="text" id="p-nom" value="Taxi Mayotte Express"/></div>
+            <button class="btn btn-primary" onclick="saveParams()">💾 Enregistrer</button>
+          </div>
+          <div class="param-box">
+            <h3>💳 Abonnement mensuel</h3>
+            <div class="fg"><label>Prix mensuel (€)</label><input type="number" id="p-prix" value="29" min="0"/><p class="fg-note">Compte admin : gratuit et illimité</p></div>
+            <div class="fg">
+              <label>Devise</label>
+              <select id="p-devise"><option value="EUR">Euro (€)</option><option value="XAF">Franc CFA</option></select>
+            </div>
+            <button class="btn btn-primary" onclick="saveParams()">💾 Enregistrer</button>
+          </div>
+          <div class="param-box">
+            <h3>🔑 Changer le mot de passe</h3>
+            <div class="fg"><label>Mot de passe actuel</label><input type="password" id="p-old" placeholder="••••••••"/></div>
+            <div class="fg"><label>Nouveau mot de passe</label><input type="password" id="p-new" placeholder="••••••••"/></div>
+            <div class="fg"><label>Confirmer</label><input type="password" id="p-confirm" placeholder="••••••••"/></div>
+            <button class="btn btn-primary" onclick="changePass()">🔑 Changer</button>
+            <p id="p-msg" style="margin-top:8px;font-size:.81rem;"></p>
+          </div>
+          <div class="param-box">
+            <h3>🌐 Liens utiles</h3>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <a href="index.html" target="_blank" class="btn btn-ghost">🌐 Voir le site public</a>
+              <a href="https://app.netlify.com" target="_blank" class="btn btn-ghost">🚀 Netlify Dashboard</a>
+              <a href="https://github.com/nassimnissam54-droid/TAXI-MAYOTTE" target="_blank" class="btn btn-ghost">📁 Dépôt GitHub</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODAL AJOUTER CHAUFFEUR -->
+<div class="modal-overlay" id="mAddC">
+  <div class="modal">
+    <div class="modal-header"><h3>➕ Ajouter un chauffeur</h3><button class="modal-close" onclick="closeModal('mAddC')">×</button></div>
+    <form id="fAddC">
+      <div class="fg"><label>Prénom et Nom *</label><input type="text" id="c-nom" required placeholder="Ex : Mohamed Ali"/></div>
+      <div class="fg"><label>Téléphone *</label><input type="tel" id="c-tel" required placeholder="+262 639 XX XX XX"/></div>
+      <div class="fg"><label>Email</label><input type="email" id="c-email" placeholder="email@exemple.com"/></div>
+      <div class="fg"><label>N° carte professionnelle taxi</label><input type="text" id="c-carte" placeholder="TXI-976-XXX"/></div>
+      <div class="fg"><label>Statut</label><select id="c-statut"><option value="actif">Actif</option><option value="suspendu">Suspendu</option></select></div>
+      <div class="fg"><label>Abonnement</label><select id="c-abo"><option value="mensuel">Mensuel (payant)</option><option value="gratuit">Gratuit (admin)</option></select></div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('mAddC')">Annuler</button>
+        <button type="submit" class="btn btn-primary">✅ Ajouter</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL AJOUTER DEMANDE -->
+<div class="modal-overlay" id="mAddD">
+  <div class="modal">
+    <div class="modal-header"><h3>📋 Nouvelle demande</h3><button class="modal-close" onclick="closeModal('mAddD')">×</button></div>
+    <form id="fAddD">
+      <div class="fg"><label>Prénom et Nom *</label><input type="text" id="d-nom" required placeholder="Ex : Youssouf Madi"/></div>
+      <div class="fg"><label>Téléphone *</label><input type="tel" id="d-tel" required placeholder="+262 639 XX XX XX"/></div>
+      <div class="fg">
+        <label>Documents fournis</label>
+        <div style="display:flex;flex-direction:column;gap:5px;margin-top:5px;">
+          <label style="font-weight:400;display:flex;align-items:center;gap:7px;cursor:pointer;font-size:.87rem;"><input type="checkbox" id="dc1"/> Carte professionnelle taxi</label>
+          <label style="font-weight:400;display:flex;align-items:center;gap:7px;cursor:pointer;font-size:.87rem;"><input type="checkbox" id="dc2"/> Permis de conduire</label>
+          <label style="font-weight:400;display:flex;align-items:center;gap:7px;cursor:pointer;font-size:.87rem;"><input type="checkbox" id="dc3"/> Carte grise du véhicule</label>
+          <label style="font-weight:400;display:flex;align-items:center;gap:7px;cursor:pointer;font-size:.87rem;"><input type="checkbox" id="dc4"/> Attestation d'assurance taxi</label>
+          <label style="font-weight:400;display:flex;align-items:center;gap:7px;cursor:pointer;font-size:.87rem;"><input type="checkbox" id="dc5"/> Justificatif d'identité (CNI/passeport)</label>
+        </div>
+      </div>
+      <div class="fg"><label>Notes</label><textarea id="d-notes" rows="2" placeholder="Observations…"></textarea></div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('mAddD')">Annuler</button>
+        <button type="submit" class="btn btn-primary">✅ Enregistrer</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="sidebarOverlay" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:49;" onclick="closeSidebar()"></div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────
+const K_PASS = 'tme_pass', K_CH = 'tme_ch', K_DM = 'tme_dm', K_PR = 'tme_pr';
+const DEFAULT_PASS = 'Admin@2024';
+
+const INIT_CH = [
+  {id:1,nom:'Nassim (Administrateur)',tel:'+262 639 20 26 99',email:'',carte:'ADMIN',statut:'actif',abo:'gratuit',date:'2024-01-01'},
+  {id:2,nom:'Mohamed Ali Ousseni',   tel:'+262 639 11 22 33',email:'',carte:'TXI-976-001',statut:'actif',    abo:'mensuel',date:'2025-03-15'},
+  {id:3,nom:'Fatima Halidi',         tel:'+262 639 44 55 66',email:'',carte:'TXI-976-002',statut:'actif',    abo:'mensuel',date:'2025-04-01'},
+  {id:4,nom:'Said Hamada',           tel:'+262 639 77 88 99',email:'',carte:'TXI-976-003',statut:'suspendu', abo:'mensuel',date:'2025-04-20'},
+];
+const INIT_DM = [
+  {id:1,nom:'Youssouf Madi',   tel:'+262 639 00 11 22',date:'2026-06-01',statut:'attente',docs:{d1:true,d2:true,d3:true,d4:false,d5:true},notes:''},
+  {id:2,nom:'Nassima Raifiki', tel:'+262 639 33 44 55',date:'2026-06-03',statut:'attente',docs:{d1:true,d2:true,d3:false,d4:true,d5:true},notes:'Documents en cours'},
+];
+const DOC_LABELS = {d1:'Carte professionnelle taxi',d2:'Permis de conduire',d3:'Carte grise du véhicule',d4:'Attestation assurance taxi',d5:'Justificatif d\'identité'};
+
+// ── STORAGE ──────────────────────────────────────────────────
+const getPass = ()=> localStorage.getItem(K_PASS)||DEFAULT_PASS;
+const getCH   = ()=>{ try{return JSON.parse(localStorage.getItem(K_CH))||INIT_CH;}catch(e){return INIT_CH;} };
+const getDM   = ()=>{ try{return JSON.parse(localStorage.getItem(K_DM))||INIT_DM;}catch(e){return INIT_DM;} };
+const saveCH  = d=> localStorage.setItem(K_CH, JSON.stringify(d));
+const saveDM  = d=> localStorage.setItem(K_DM, JSON.stringify(d));
+
+// ── LOGIN ────────────────────────────────────────────────────
+document.getElementById('loginForm').addEventListener('submit',function(e){
+  e.preventDefault();
+  if(document.getElementById('adminPass').value === getPass()){
+    sessionStorage.setItem('tme_ok','1');
+    showAdmin();
+  } else {
+    document.getElementById('loginError').style.display='block';
+    const card=document.getElementById('loginCard');
+    card.classList.add('shake');
+    setTimeout(()=>card.classList.remove('shake'),400);
+    document.getElementById('adminPass').value='';
+  }
+});
+
+function showAdmin(){
+  document.getElementById('loginPage').style.display='none';
+  document.getElementById('adminPanel').style.display='flex';
+  initAdmin();
+}
+
+window.addEventListener('DOMContentLoaded',function(){
+  if(sessionStorage.getItem('tme_ok')==='1') showAdmin();
+  const now=new Date();
+  document.getElementById('pageDate').textContent=
+    now.toLocaleDateString('fr-FR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+});
+
+document.getElementById('logoutBtn').addEventListener('click',function(){
+  sessionStorage.removeItem('tme_ok');
+  document.getElementById('loginPage').style.display='flex';
+  document.getElementById('adminPanel').style.display='none';
+  document.getElementById('adminPass').value='';
+  document.getElementById('loginError').style.display='none';
+});
+
+// ── NAVIGATION ───────────────────────────────────────────────
+const TITLES={dashboard:'Tableau de bord',chauffeurs:'Chauffeurs',demandes:'Demandes d\'inscription',abonnements:'Abonnements',parametres:'Paramètres'};
+
+document.querySelectorAll('.nav-item').forEach(el=>{
+  el.addEventListener('click',function(){ navigateTo(this.dataset.section); closeSidebar(); });
+});
+
+function navigateTo(s){
+  document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
+  document.querySelector('[data-section="'+s+'"]').classList.add('active');
+  document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+  document.getElementById('section-'+s).classList.add('active');
+  document.getElementById('pageTitle').textContent=TITLES[s]||s;
+  if(s==='dashboard')   renderDash();
+  if(s==='chauffeurs')  renderCH();
+  if(s==='demandes')    renderDM();
+  if(s==='abonnements') renderABO();
+}
+
+// Hamburger
+document.getElementById('hamburger').addEventListener('click',()=>{
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('sidebarOverlay').style.display='block';
+});
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').style.display='none';
+}
+
+// ── INIT ─────────────────────────────────────────────────────
+function initAdmin(){ renderDash(); updateBadge(); }
+
+// ── DASHBOARD ────────────────────────────────────────────────
+function renderDash(){
+  const ch=getCH(), dm=getDM();
+  document.getElementById('s-total').textContent   = ch.length;
+  document.getElementById('s-actifs').textContent  = ch.filter(c=>c.statut==='actif').length;
+  document.getElementById('s-demandes').textContent= dm.filter(d=>d.statut==='attente').length;
+  document.getElementById('s-impayes').textContent = ch.filter(c=>c.abo==='mensuel'&&c.statut==='suspendu').length;
+  updateBadge();
+  // Activité
+  const acts=[];
+  ch.slice().reverse().slice(0,3).forEach(c=>acts.push({icon:'🚗',text:`Chauffeur <b>${c.nom}</b> — ${c.statut}`,date:c.date}));
+  dm.slice().reverse().slice(0,3).forEach(d=>{
+    const s=d.statut==='attente'?'⏳ En attente':d.statut==='approuve'?'✅ Approuvé':'❌ Refusé';
+    acts.push({icon:'📋',text:`Demande de <b>${d.nom}</b> — ${s}`,date:d.date});
+  });
+  acts.sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const al=document.getElementById('activityList');
+  al.innerHTML = acts.length
+    ? acts.slice(0,6).map(a=>`<div class="activity-row"><span style="font-size:1.2rem">${a.icon}</span><span style="font-size:.85rem;flex:1">${a.text}</span><span style="font-size:.76rem;color:var(--text-light);white-space:nowrap">${fmtDate(a.date)}</span></div>`).join('')
+    : '<div class="empty-state"><div class="ei">📭</div><p>Aucune activité</p></div>';
+}
+
+function updateBadge(){
+  const n=getDM().filter(d=>d.statut==='attente').length;
+  const b=document.getElementById('badge-demandes');
+  b.textContent=n; b.style.display=n>0?'inline-block':'none';
+}
+
+// ── CHAUFFEURS ───────────────────────────────────────────────
+function renderCH(f=''){
+  const data=getCH().filter(c=>!f||c.nom.toLowerCase().includes(f.toLowerCase())||c.tel.includes(f));
+  const tb=document.getElementById('tblC');
+  if(!data.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text-light);padding:2rem;">Aucun résultat</td></tr>';return;}
+  tb.innerHTML=data.map(c=>`
+    <tr>
+      <td><b>${c.nom}</b>${c.carte?`<br><small style="color:var(--text-light)">${c.carte}</small>`:''}</td>
+      <td><a href="tel:${c.tel}" style="color:var(--primary)">${c.tel}</a></td>
+      <td><span class="badge ${c.statut==='actif'?'b-actif':'b-suspendu'}">${c.statut==='actif'?'✅ Actif':'🚫 Suspendu'}</span></td>
+      <td>${c.abo==='gratuit'?'<span class="badge b-admin">⭐ Gratuit</span>':'<span class="badge b-paye">💳 Mensuel</span>'}</td>
+      <td style="color:var(--text-light);font-size:.8rem">${fmtDate(c.date)}</td>
+      <td>
+        <div style="display:flex;gap:5px;flex-wrap:wrap">
+          <button class="btn btn-sm ${c.statut==='actif'?'btn-warning':'btn-success'}" onclick="toggleStatut(${c.id})">${c.statut==='actif'?'🚫':'✅'}</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteCH(${c.id})">🗑️</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+function filterC(){ renderCH(document.getElementById('searchC').value); }
+function toggleStatut(id){
+  const ch=getCH(); const c=ch.find(x=>x.id===id);
+  if(c) c.statut=c.statut==='actif'?'suspendu':'actif';
+  saveCH(ch); renderCH(); renderDash();
+}
+function deleteCH(id){
+  if(!confirm('Supprimer ce chauffeur ?')) return;
+  saveCH(getCH().filter(c=>c.id!==id)); renderCH(); renderDash();
+}
+document.getElementById('fAddC').addEventListener('submit',function(e){
+  e.preventDefault();
+  const ch=getCH();
+  ch.push({
+    id:ch.length?Math.max(...ch.map(c=>c.id))+1:1,
+    nom:document.getElementById('c-nom').value.trim(),
+    tel:document.getElementById('c-tel').value.trim(),
+    email:document.getElementById('c-email').value.trim(),
+    carte:document.getElementById('c-carte').value.trim(),
+    statut:document.getElementById('c-statut').value,
+    abo:document.getElementById('c-abo').value,
+    date:new Date().toISOString().split('T')[0],
+  });
+  saveCH(ch); closeModal('mAddC'); this.reset(); renderCH(); renderDash();
+});
+
+// ── DEMANDES ─────────────────────────────────────────────────
+function renderDM(){
+  const dm=getDM();
+  const grid=document.getElementById('demandesGrid');
+  const empty=document.getElementById('demandesEmpty');
+  if(!dm.length){grid.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  grid.innerHTML=dm.map(d=>{
+    const docsHtml=Object.entries(d.docs||{}).map(([k,v])=>`<div class="doc-row"><span>${v?'✅':'❌'}</span><span>${DOC_LABELS[k]}</span></div>`).join('');
+    const allOk=Object.values(d.docs||{}).every(Boolean);
+    const actionsHtml=d.statut==='attente'
+      ?`<div class="demande-actions">
+          <button class="btn btn-sm btn-success" onclick="approveDM(${d.id})" ${allOk?'':'style="opacity:.55"'}>✅ Approuver</button>
+          <button class="btn btn-sm btn-danger" onclick="refuseDM(${d.id})">❌ Refuser</button>
+        </div>`
+      :d.statut==='approuve'
+        ?'<span class="badge b-approuve">✅ Approuvée</span>'
+        :'<span class="badge b-refuse">❌ Refusée</span>';
+    return `<div class="demande-card ${d.statut==='approuve'?'approved':d.statut==='refuse'?'refused':''}">
+      <div class="demande-name">${d.nom}</div>
+      <div class="demande-meta">📱 ${d.tel} &nbsp;·&nbsp; 📅 ${fmtDate(d.date)}</div>
+      ${d.notes?`<p style="font-size:.8rem;color:var(--text-light);margin-bottom:.7rem">📝 ${d.notes}</p>`:''}
+      <div style="margin-bottom:.7rem"><small style="font-size:.76rem;font-weight:700;color:var(--text-light)">DOCUMENTS (${Object.values(d.docs||{}).filter(Boolean).length}/5)</small>${docsHtml}</div>
+      ${actionsHtml}
+    </div>`;
+  }).join('');
+}
+function approveDM(id){
+  const dm=getDM(); const d=dm.find(x=>x.id===id); if(!d) return;
+  if(!confirm(`Approuver ${d.nom} et créer son compte chauffeur ?`)) return;
+  d.statut='approuve'; saveDM(dm);
+  const ch=getCH();
+  ch.push({id:ch.length?Math.max(...ch.map(c=>c.id))+1:1,nom:d.nom,tel:d.tel,email:'',carte:'',statut:'actif',abo:'mensuel',date:new Date().toISOString().split('T')[0]});
+  saveCH(ch); renderDM(); renderDash(); updateBadge();
+  alert(`✅ ${d.nom} approuvé(e) et ajouté(e) à la liste des chauffeurs !`);
+}
+function refuseDM(id){
+  const dm=getDM(); const d=dm.find(x=>x.id===id);
+  if(!d||!confirm(`Refuser la demande de ${d.nom} ?`)) return;
+  d.statut='refuse'; saveDM(dm); renderDM(); updateBadge();
+}
+document.getElementById('fAddD').addEventListener('submit',function(e){
+  e.preventDefault();
+  const dm=getDM();
+  dm.push({
+    id:dm.length?Math.max(...dm.map(d=>d.id))+1:1,
+    nom:document.getElementById('d-nom').value.trim(),
+    tel:document.getElementById('d-tel').value.trim(),
+    date:new Date().toISOString().split('T')[0],
+    statut:'attente',
+    docs:{d1:document.getElementById('dc1').checked,d2:document.getElementById('dc2').checked,d3:document.getElementById('dc3').checked,d4:document.getElementById('dc4').checked,d5:document.getElementById('dc5').checked},
+    notes:document.getElementById('d-notes').value.trim(),
+  });
+  saveDM(dm); closeModal('mAddD'); this.reset(); renderDM(); updateBadge();
+});
+
+// ── ABONNEMENTS ──────────────────────────────────────────────
+function renderABO(){
+  const ch=getCH().filter(c=>c.abo!=='gratuit');
+  const tb=document.getElementById('tblA');
+  if(!ch.length){tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--text-light);padding:2rem;">Aucun abonnement payant</td></tr>';return;}
+  tb.innerHTML=ch.map(c=>{
+    const d=new Date(c.date); d.setMonth(d.getMonth()+1);
+    return `<tr>
+      <td><b>${c.nom}</b><br><small style="color:var(--text-light)">${c.tel}</small></td>
+      <td><span class="badge b-admin">Mensuel</span></td>
+      <td>${c.statut==='actif'?'<span class="badge b-paye">✅ À jour</span>':'<span class="badge b-impaye">⚠️ Impayé</span>'}</td>
+      <td style="font-size:.82rem">${d.toLocaleDateString('fr-FR')}</td>
+      <td><button class="btn btn-sm ${c.statut==='actif'?'btn-warning':'btn-success'}" onclick="toggleStatut(${c.id});renderABO();">${c.statut==='actif'?'🚫 Suspendre':'✅ Activer'}</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ── PARAMÈTRES ───────────────────────────────────────────────
+function saveParams(){
+  localStorage.setItem(K_PR,JSON.stringify({
+    tel:document.getElementById('p-tel').value,
+    nom:document.getElementById('p-nom').value,
+    prix:document.getElementById('p-prix').value,
+    devise:document.getElementById('p-devise').value,
+  }));
+  alert('✅ Paramètres enregistrés !');
+}
+function changePass(){
+  const op=document.getElementById('p-old').value;
+  const np=document.getElementById('p-new').value;
+  const cp=document.getElementById('p-confirm').value;
+  const msg=document.getElementById('p-msg');
+  if(op!==getPass()){msg.style.color='var(--danger)';msg.textContent='❌ Mot de passe actuel incorrect.';return;}
+  if(np.length<6){msg.style.color='var(--danger)';msg.textContent='❌ Minimum 6 caractères.';return;}
+  if(np!==cp){msg.style.color='var(--danger)';msg.textContent='❌ Les mots de passe ne correspondent pas.';return;}
+  localStorage.setItem(K_PASS,np);
+  msg.style.color='var(--success)';msg.textContent='✅ Mot de passe changé !';
+  document.getElementById('p-old').value='';
+  document.getElementById('p-new').value='';
+  document.getElementById('p-confirm').value='';
+}
+
+// ── MODALS ───────────────────────────────────────────────────
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(o=>{
+  o.addEventListener('click',function(e){ if(e.target===this) this.classList.remove('open'); });
+});
+
+// ── UTILS ────────────────────────────────────────────────────
+function fmtDate(s){
+  if(!s) return '';
+  try{ return new Date(s+'T12:00:00').toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}); }
+  catch(e){ return s; }
+}
+</script>
+</body>
+</html>
