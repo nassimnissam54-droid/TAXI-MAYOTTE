@@ -1,5 +1,5 @@
 // ===== CONFIGURATION — REMPLACEZ CES VALEURS =====
-const PHONE = '262639202699'; // Taxi Mayotte Express
+const PHONE = '262639202699'; // Société MASSULAHA
 
 // ===== DATE & HEURE PAR DÉFAUT =====
 document.addEventListener('DOMContentLoaded', () => {
@@ -91,7 +91,7 @@ if (form) {
 }
 
 function buildMessage({ prenom, tel, date, heure, depart, destination, passagers, bagages, notes }) {
-  let msg = `🚕 *Réservation Taxi Mayotte Express*\n\n`;
+  let msg = `🚕 *Réservation Société MASSULAHA*\n\n`;
   msg += `👤 *Prénom :* ${prenom}\n`;
   msg += `📱 *Téléphone :* ${tel}\n`;
   msg += `📅 *Date :* ${date}\n`;
@@ -135,7 +135,7 @@ if (formDevis) {
       return;
     }
 
-    let msg = `💰 *Demande de devis — Taxi Mayotte Express*\n\n`;
+    let msg = `💰 *Demande de devis — Société MASSULAHA*\n\n`;
     msg += `👤 *Prénom :* ${nom}\n`;
     msg += `📱 *Téléphone :* ${tel}\n`;
     msg += `📍 *Départ :* ${depart}\n`;
