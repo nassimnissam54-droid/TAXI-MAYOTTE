@@ -64,11 +64,12 @@ input,select,textarea,button{font-family:inherit}
 .logo-icon{font-size:1.75rem;line-height:1}
 .logo-text{display:flex;flex-direction:column;line-height:1.1}
 .logo-brand{
-  font-size:.98rem;font-weight:800;letter-spacing:-.3px;
+  font-size:1.05rem;font-weight:800;
+  letter-spacing:2.5px;text-transform:uppercase;
   color:var(--white);transition:color var(--ease);
 }
 .logo-tag{
-  font-size:.67rem;font-weight:700;letter-spacing:.6px;
+  font-size:.62rem;font-weight:600;letter-spacing:.8px;
   text-transform:uppercase;color:var(--gold-lt);
   transition:color var(--ease);
 }
@@ -517,7 +518,7 @@ input,select,textarea,button{font-family:inherit}
   border-bottom:1px solid rgba(255,255,255,.07);
 }
 .footer-logo{display:flex;align-items:center;gap:10px;margin-bottom:1rem}
-.fl-name{display:block;font-size:.97rem;font-weight:800;color:var(--white)}
+.fl-name{display:block;font-size:.97rem;font-weight:800;color:var(--white);letter-spacing:2px;text-transform:uppercase}
 .fl-sub{display:block;font-size:.67rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--gold)}
 .footer-brand p{font-size:.83rem;line-height:1.68;max-width:270px;margin-bottom:1.2rem}
 .footer-wa-btn{
