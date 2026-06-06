@@ -129,6 +129,12 @@
   .b-paye{background:#d1fae5;color:#065f46;}
   .b-impaye{background:#fee2e2;color:#991b1b;}
 
+  /* AVATAR CHAUFFEUR */
+  .ch-cell{display:flex;align-items:center;gap:10px;}
+  .ch-avatar{width:42px;height:42px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid var(--border);}
+  .ch-avatar-ini{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--white);font-weight:800;font-size:.95rem;flex-shrink:0;border:2px solid transparent;}
+  .photo-preview-sm{width:68px;height:68px;border-radius:50%;object-fit:cover;display:none;margin-top:8px;border:2px solid var(--border);}
+
   /* SEARCH */
   .search-wrap{position:relative;max-width:260px;}
   .search-wrap input{width:100%;padding:8px 12px 8px 34px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:.86rem;font-family:inherit;background:var(--bg);}
@@ -370,6 +376,11 @@
     <div class="modal-header"><h3>➕ Ajouter un chauffeur</h3><button class="modal-close" onclick="closeModal('mAddC')">×</button></div>
     <form id="fAddC">
       <div class="fg"><label>Prénom et Nom *</label><input type="text" id="c-nom" required placeholder="Ex : Mohamed Ali"/></div>
+      <div class="fg">
+        <label>Photo de profil</label>
+        <input type="file" id="c-photo" accept="image/*" style="font-size:.84rem;" onchange="previewAddPhoto(this)"/>
+        <img id="c-photo-prev" class="photo-preview-sm" alt="Aperçu"/>
+      </div>
       <div class="fg"><label>Téléphone *</label><input type="tel" id="c-tel" required placeholder="+262 639 XX XX XX"/></div>
       <div class="fg"><label>Email</label><input type="email" id="c-email" placeholder="email@exemple.com"/></div>
       <div class="fg"><label>N° carte professionnelle taxi</label><input type="text" id="c-carte" placeholder="TXI-976-XXX"/></div>
@@ -531,6 +542,43 @@ function updateBadge(){
   b.textContent=n; b.style.display=n>0?'inline-block':'none';
 }
 
+// ── PHOTO HELPERS ────────────────────────────────────────────
+const AVATAR_COLORS=['#0052cc','#059669','#d97706','#7c3aed','#dc2626','#0891b2','#be185d','#b45309'];
+function compressImage(file){
+  return new Promise(resolve=>{
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      const img=new Image();
+      img.onload=()=>{
+        const MAX=150;
+        let w=img.width,h=img.height;
+        if(w>h){if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}}
+        else{if(h>MAX){w=Math.round(w*MAX/h);h=MAX;}}
+        const c=document.createElement('canvas');
+        c.width=w;c.height=h;
+        c.getContext('2d').drawImage(img,0,0,w,h);
+        resolve(c.toDataURL('image/jpeg',0.82));
+      };
+      img.src=ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+function previewAddPhoto(input){
+  const prev=document.getElementById('c-photo-prev');
+  if(input.files&&input.files[0]){
+    const r=new FileReader();
+    r.onload=e=>{prev.src=e.target.result;prev.style.display='block';};
+    r.readAsDataURL(input.files[0]);
+  } else {prev.style.display='none';}
+}
+function renderAvatar(c){
+  if(c.photo) return `<img src="${c.photo}" alt="${c.nom}" class="ch-avatar"/>`;
+  const ini=(c.nom||'?').split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase()||'?';
+  const col=AVATAR_COLORS[(c.id||0)%AVATAR_COLORS.length];
+  return `<div class="ch-avatar-ini" style="background:${col}">${ini}</div>`;
+}
+
 // ── CHAUFFEURS ───────────────────────────────────────────────
 function renderCH(f=''){
   const data=getCH().filter(c=>!f||c.nom.toLowerCase().includes(f.toLowerCase())||c.tel.includes(f));
@@ -538,7 +586,7 @@ function renderCH(f=''){
   if(!data.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text-light);padding:2rem;">Aucun résultat</td></tr>';return;}
   tb.innerHTML=data.map(c=>`
     <tr>
-      <td><b>${c.nom}</b>${c.carte?`<br><small style="color:var(--text-light)">${c.carte}</small>`:''}</td>
+      <td><div class="ch-cell">${renderAvatar(c)}<div><b>${c.nom}</b>${c.carte?`<br><small style="color:var(--text-light)">${c.carte}</small>`:''}</div></div></td>
       <td><a href="tel:${c.tel}" style="color:var(--primary)">${c.tel}</a></td>
       <td><span class="badge ${c.statut==='actif'?'b-actif':'b-suspendu'}">${c.statut==='actif'?'✅ Actif':'🚫 Suspendu'}</span></td>
       <td>${c.abo==='gratuit'?'<span class="badge b-admin">⭐ Gratuit</span>':'<span class="badge b-paye">💳 Mensuel</span>'}</td>
@@ -561,9 +609,11 @@ function deleteCH(id){
   if(!confirm('Supprimer ce chauffeur ?')) return;
   saveCH(getCH().filter(c=>c.id!==id)); renderCH(); renderDash();
 }
-document.getElementById('fAddC').addEventListener('submit',function(e){
+document.getElementById('fAddC').addEventListener('submit',async function(e){
   e.preventDefault();
   const ch=getCH();
+  const photoFile=document.getElementById('c-photo').files[0];
+  const photo=photoFile?await compressImage(photoFile):'';
   ch.push({
     id:ch.length?Math.max(...ch.map(c=>c.id))+1:1,
     nom:document.getElementById('c-nom').value.trim(),
@@ -573,8 +623,14 @@ document.getElementById('fAddC').addEventListener('submit',function(e){
     statut:document.getElementById('c-statut').value,
     abo:document.getElementById('c-abo').value,
     date:new Date().toISOString().split('T')[0],
+    photo:photo,
   });
-  saveCH(ch); closeModal('mAddC'); this.reset(); renderCH(); renderDash();
+  saveCH(ch);
+  closeModal('mAddC');
+  this.reset();
+  const prev=document.getElementById('c-photo-prev');
+  prev.src=''; prev.style.display='none';
+  renderCH(); renderDash();
 });
 
 // ── DEMANDES ─────────────────────────────────────────────────
