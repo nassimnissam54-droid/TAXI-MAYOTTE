@@ -560,6 +560,140 @@ input,select,textarea,button{font-family:inherit}
   50%{transform:translateY(-5px)}
 }
 
+/* ── CARTE TOURISTIQUE (service card) ───────────────────────── */
+.sc-tour{cursor:pointer;user-select:none;position:relative}
+.sc-tour:active{transform:translateY(-3px) scale(.99)}
+.sc-tour-badge{
+  position:absolute;top:14px;right:14px;
+  padding:3px 10px;background:var(--gold);color:var(--ink);
+  border-radius:var(--r-pill);font-size:.65rem;font-weight:800;
+  text-transform:uppercase;letter-spacing:.4px;
+}
+.sc-map-cta{pointer-events:none}
+
+/* ── MODAL TOURISME ──────────────────────────────────────────── */
+.mt-modal{
+  position:fixed;inset:0;z-index:200;
+  display:flex;align-items:center;justify-content:center;
+  padding:12px;
+  visibility:hidden;opacity:0;
+  transition:visibility 0s .28s,opacity .28s ease;
+}
+.mt-modal.open{
+  visibility:visible;opacity:1;
+  transition:visibility 0s,opacity .28s ease;
+}
+.mt-backdrop{
+  position:absolute;inset:0;
+  background:rgba(7,14,36,.76);
+  backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);
+}
+.mt-container{
+  position:relative;z-index:1;
+  background:var(--white);border-radius:20px;
+  width:100%;max-width:1120px;
+  max-height:92vh;
+  display:flex;flex-direction:column;
+  box-shadow:0 24px 80px rgba(0,0,0,.32);
+  overflow:hidden;
+  transform:translateY(24px) scale(.96);
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1);
+}
+.mt-modal.open .mt-container{transform:translateY(0) scale(1)}
+/* Header */
+.mt-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 24px;background:var(--ink);color:var(--white);flex-shrink:0;
+}
+.mt-head-info{display:flex;align-items:center;gap:14px}
+.mt-head-icon{font-size:1.55rem}
+.mt-head-info h3{font-size:.98rem;font-weight:800;color:var(--white);margin-bottom:1px}
+.mt-head-info p{font-size:.75rem;color:rgba(255,255,255,.55);margin:0}
+.mt-close{
+  width:34px;height:34px;border-radius:50%;flex-shrink:0;
+  background:rgba(255,255,255,.1);border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--white);transition:background var(--ease);
+}
+.mt-close:hover{background:rgba(255,255,255,.22)}
+/* Body */
+.mt-body{display:flex;flex:1;overflow:hidden;min-height:0}
+/* Site list */
+.mt-list{
+  width:310px;flex-shrink:0;overflow-y:auto;
+  border-right:1px solid var(--border);
+  padding:10px;display:flex;flex-direction:column;gap:8px;
+}
+.mt-list::-webkit-scrollbar{width:4px}
+.mt-list::-webkit-scrollbar-track{background:var(--off)}
+.mt-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+/* Site card in list */
+.mt-card{
+  border:1.5px solid var(--border);border-radius:10px;
+  overflow:hidden;cursor:pointer;background:var(--white);
+  transition:border-color var(--ease),box-shadow var(--ease),transform var(--ease);
+  flex-shrink:0;
+}
+.mt-card:hover{border-color:var(--gold);box-shadow:var(--sh);transform:translateX(2px)}
+.mt-card.active{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold)}
+.mt-card-img{width:100%;height:96px;object-fit:cover;background:var(--surface);display:block}
+.mt-card-body{padding:9px 11px 11px}
+.mt-cat-badge{
+  display:inline-flex;align-items:center;gap:3px;
+  padding:2px 8px;border-radius:var(--r-pill);
+  font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;
+  margin-bottom:4px;
+}
+.cat-plage   {background:#e0f2fe;color:#0369a1}
+.cat-nautique{background:#dbeafe;color:#1d4ed8}
+.cat-nature  {background:#dcfce7;color:#166534}
+.cat-culture {background:var(--gold-bg);color:#92400e}
+.mt-card h4{font-size:.86rem;font-weight:800;color:var(--ink);margin-bottom:1px}
+.mt-card-loc{font-size:.71rem;color:var(--text-lt);margin-bottom:5px}
+.mt-acts{display:flex;flex-wrap:wrap;gap:3px}
+.mt-act{
+  padding:2px 6px;background:var(--off);
+  border-radius:4px;font-size:.67rem;color:var(--text-mid);
+}
+/* Map */
+.mt-map-wrap{flex:1;position:relative;min-width:0}
+#mtMap{width:100%;height:100%;min-height:440px}
+.mt-legend{
+  position:absolute;bottom:10px;left:10px;z-index:500;
+  display:flex;gap:8px;flex-wrap:wrap;
+  background:rgba(255,255,255,.92);backdrop-filter:blur(6px);
+  border-radius:8px;padding:6px 10px;
+  box-shadow:var(--sh);
+}
+.ml-item{display:flex;align-items:center;gap:5px;font-size:.72rem;font-weight:600;color:var(--text)}
+.ml-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+/* Leaflet custom marker */
+.lf-mk{
+  width:40px;height:40px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.15rem;border:3px solid var(--white);
+  box-shadow:0 3px 12px rgba(0,0,0,.28);
+  cursor:pointer;transition:transform .15s;
+}
+.lf-mk:hover,.lf-mk.pulsing{transform:scale(1.2)}
+/* Footer */
+.mt-foot{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:13px 24px;background:var(--off);
+  border-top:1px solid var(--border);
+  gap:14px;flex-wrap:wrap;flex-shrink:0;
+}
+.mt-foot>span{font-size:.81rem;color:var(--text-mid);font-weight:500}
+.mt-foot-btns{display:flex;gap:8px;flex-wrap:wrap}
+.btn-ink-sm{
+  background:var(--ink);color:var(--white)!important;
+  border-radius:var(--r-pill);padding:10px 18px;
+  font-size:.84rem;font-weight:700;
+  display:inline-flex;align-items:center;gap:6px;
+  transition:background var(--ease);
+}
+.btn-ink-sm:hover{background:var(--ink-mid)}
+
 /* ── RESPONSIVE ──────────────────────────────────────────────── */
 @media(max-width:1060px){
   .services-grid{grid-template-columns:repeat(2,1fr)}
@@ -600,4 +734,26 @@ input,select,textarea,button{font-family:inherit}
   .features-grid{grid-template-columns:1fr}
   .btn-call{padding:8px 13px;font-size:.8rem}
   .pros-stats-row{gap:16px}
+}
+/* Modal responsive */
+@media(max-width:820px){
+  .mt-body{flex-direction:column}
+  .mt-list{
+    width:100%;border-right:none;border-bottom:1px solid var(--border);
+    flex-direction:row;flex-wrap:nowrap;
+    overflow-x:auto;overflow-y:hidden;
+    max-height:none;padding:10px;
+  }
+  .mt-card{flex:0 0 210px}
+  .mt-card-img{height:78px}
+  .mt-map-wrap{min-height:320px}
+  #mtMap{min-height:320px}
+  .mt-foot{flex-direction:column;align-items:flex-start;padding:12px 16px}
+  .mt-head{padding:12px 16px}
+  .mt-legend{bottom:auto;top:8px;left:8px}
+}
+@media(max-width:480px){
+  .mt-modal{padding:0}
+  .mt-container{border-radius:16px 16px 0 0;position:fixed;bottom:0;left:0;right:0;max-height:96vh}
+  .mt-card{flex:0 0 190px}
 }
