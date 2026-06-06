@@ -32,14 +32,28 @@ document.querySelectorAll('a[href^="#"]').forEach(link => {
   });
 });
 
-// ===== HEADER SHADOW ON SCROLL =====
+// ===== HEADER: TRANSPARENT → OPAQUE ON SCROLL =====
 const header = document.getElementById('header');
 if (header) {
-  window.addEventListener('scroll', () => {
-    header.style.boxShadow = window.scrollY > 20
-      ? '0 4px 24px rgba(0,0,0,0.14)'
-      : '0 2px 8px rgba(0,0,0,0.06)';
-  }, { passive: true });
+  const onScroll = () => header.classList.toggle('scrolled', window.scrollY > 30);
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+}
+
+// ===== HAMBURGER MENU =====
+const hamburger = document.getElementById('hamburger');
+const nav = document.getElementById('nav');
+if (hamburger && nav) {
+  hamburger.addEventListener('click', () => {
+    const open = nav.classList.toggle('nav-open');
+    hamburger.setAttribute('aria-expanded', open);
+  });
+  nav.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', () => {
+      nav.classList.remove('nav-open');
+      hamburger.setAttribute('aria-expanded', 'false');
+    });
+  });
 }
 
 // ===== FORMULAIRE → WHATSAPP =====
